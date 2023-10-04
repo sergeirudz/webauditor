@@ -1,27 +1,20 @@
 {
-  "name": "webauditor",
-  "private": true,
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "name": "crawler",
+  "version": "0.0.1",
+  "type": "module",
+  "description": "This is an example of a Crawlee project.",
+  "dependencies": {
+    "crawlee": "^3.0.0",
+    "playwright": "*"
+  },
   "scripts": {
-    "format": "prettier",
-    "format:check": "pnpm format --check --debug-check",
-    "format:fix": "pnpm format --write"
+    "start": "npm run start:dev",
+    "start:prod": "node dist/index.js",
+    "start:dev": "node --no-warnings=ExperimentalWarning --loader ts-node/esm/transpile-only index.ts",
+    "build": "tsc",
+    "test": "echo \"Error: oops, the actor has no tests yet, sad!\" && exit 1",
+    "postinstall": "npx crawlee install-playwright-browsers"
   },
-  "engines": {
-    "node": ">=18.0.0",
-    "pnpm": ">=8.0.0",
-    "npm": "please-use-pnpm",
-    "yarn": "please-use-pnpm"
-  },
-  "packageManager": "pnpm@8.0.0",
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "devDependencies": {
-    "@tsconfig/node18": "^18.2.2",
-    "prettier": "^3.0.3",
-    "ts-node": "^10.9.1"
-  }
+  "author": "It's not you it's me",
+  "license": "ISC"
 }

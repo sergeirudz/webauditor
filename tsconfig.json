@@ -1,11 +1,13 @@
 {
-  "extends": [
-    "./tsconfig.node.json"
-  ],
+  "extends": "./tsconfig.node.json",
   "include": ["**/*.ts"],
   "exclude": ["node_modules"],
   "compilerOptions": {
     "strict": true,
     "target": "ESNext"
+  },
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node"
   }
 }
