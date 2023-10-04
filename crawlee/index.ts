@@ -48,6 +48,19 @@ fs.readdir(STORAGE_DIR, async (err, files) => {
 	}
 })
 
+function getName(str: string) {
+	// Replace all special characters | symbols with a space
+	str = str.replace(/[`~!@#$%^&*()_\-+=\[\]{};:'"\\|\/,.<>?\s]/g, ' ').toLowerCase()
+
+	// Trim spaces at start and end of string
+	str = str.replace(/^\s+|\s+$/gm,'')
+
+	// Replace space with dash/hyphen
+	str = str.replace(/\s+/g, '-')
+
+	return str
+}
+
 async function getReport(page: Page) {
 	try {
 		const { report } = await playAudit({
@@ -65,7 +78,8 @@ async function getReport(page: Page) {
 					json: true,
 					html: true,
 					csv: false
-				}
+				},
+				name: getName(page.url())
 			},
 			ignoreError: true,
 			port: 9222
