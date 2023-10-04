@@ -3,11 +3,15 @@ import { PlaywrightCrawler, ProxyConfiguration } from 'crawlee';
 
 import { router } from './routes';
 
-const startUrls = ['https://crawlee.dev'];
+const startUrls = ['https://abipolitseinik.ee'];
 
 const crawler = new PlaywrightCrawler({
-    // proxyConfiguration: new ProxyConfiguration({ proxyUrls: ['...'] }),
-    requestHandler: router,
+	launchContext: {
+		launchOptions: {
+			args: ['--remote-debugging-port=9222']
+		}
+	},
+	requestHandler: router,
 });
 
 await crawler.run(startUrls);
