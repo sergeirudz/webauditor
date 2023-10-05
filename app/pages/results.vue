@@ -1,6 +1,6 @@
 <template>
 	<div class="relative py-8 px-4 mx-auto w-full max-w-full px-6 lg:max-w-5xl xl:max-w-7xl 2xl:max-w-[96rem]">
-		<h1 class="mb-8 text-4xl tracking-tight leading-none text-gray-900">Minu veebisaidid</h1>
+		<h1 class="mb-8 text-4xl tracking-tight leading-none text-gray-900">Auditeerimise tulemused</h1>
 		<div class="flex items-center justify-between pb-4">
 			<label for="table-search" class="sr-only">Otsing</label>
 			<div class="relative">
@@ -56,6 +56,9 @@
 					Veebisait
 				</th>
 				<th scope="col" class="px-6 py-3">
+					Olek
+				</th>
+				<th scope="col" class="px-6 py-3">
 					Auditeeritud veebilehti
 				</th>
 				<th scope="col" class="px-6 py-3">
@@ -68,22 +71,34 @@
 			</tr>
 			</thead>
 			<tbody>
-			<tr class="bg-white border-b hover:bg-gray-50">
-				<th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-					google.com
-				</th>
+			<tr
+				v-for="scan in scans"
+				class="bg-white border-b hover:bg-gray-50"
+			>
+				<td class="px-6 py-4 font-medium text-gray-900">
+					{{ scan.websites.host }}
+				</td>
 				<td class="px-6 py-4">
-					1250 / 6500
+					<span
+						class="inline-flex items-center justify-center gap-1 rounded px-1.5 text-white"
+						:class="{'bg-gray-500': scan.status === 'QUEUED', 'bg-yellow-500': scan.status === 'CRAWLING', 'bg-blue-500': scan.status === 'PROCESSING', 'bg-emerald-500': scan.status === 'COMPLETED'}"
+					>
+					  {{ scan.status }}
+					  <span class="sr-only"> {{ scan.status }}</span>
+					</span>
+				</td>
+				<td class="px-6 py-4">
+					{{ scan.pages.filter((p) => p.performance !== null).length }} / {{ scan.pages.length }}
 				</td>
 				<td class="px-6 py-4">
 					<span class="text-yellow-600">12</span>
 				</td>
 				<td class="px-6 py-4">
-					12.12.2023 12:12:12
+					{{ scan.created_at }}
 				</td>
 				<td class="px-6 py-2 text-right">
-					<button type="button" class="py-2.5 px-5 mr-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200">Auditeeri uuesti</button>
-					<NuxtLink class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-3 focus:outline-none" to="/detail/1">Tulemused</NuxtLink>
+					<button type="button" class="py-2.5 px-5 mr-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-200">Kontrolli uuesti</button>
+					<NuxtLink class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-3 focus:outline-none" :to="`/detail/${scan.id}`">Tulemused</NuxtLink>
 				</td>
 			</tr>
 			</tbody>
@@ -92,4 +107,12 @@
 </template>
 
 <script setup lang="ts">
+const client = useSupabaseClient()
+
+const { data: scans } = await useAsyncData('scans', async () => {
+	const { data } = await client
+		.from('scans')
+		.select('id, status, created_at, websites!inner(host), pages(id, performance)')
+	return data
+})
 </script>

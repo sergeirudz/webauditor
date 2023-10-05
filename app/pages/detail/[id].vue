@@ -1,9 +1,22 @@
 <template>
 	<div class="relative py-8 px-4 mx-auto w-full max-w-full px-6 lg:max-w-5xl xl:max-w-7xl 2xl:max-w-[96rem]">
-		<div class="flex items-center mb-8">
-			<h1 class="text-4xl tracking-tight leading-none text-gray-900 flex-1">google.com</h1>
-			<span class="text-lg text-gray-600">12.12.2023 12:12:12</span>
+		<div class="flex items-center mb-3">
+			<h1 class="text-4xl tracking-tight leading-none text-gray-900 flex items-center flex-1">
+				{{ scan.websites.host }}
+				<span
+					class="inline-flex items-center justify-center gap-1 rounded px-1.5 ml-3 text-sm text-white"
+					:class="{'bg-gray-500': scan.status === 'QUEUED', 'bg-yellow-500': scan.status === 'CRAWLING', 'bg-blue-500': scan.status === 'PROCESSING', 'bg-emerald-500': scan.status === 'COMPLETED'}"
+				>
+				  {{ scan.status }}
+				  <span class="sr-only"> {{ scan.status }}</span>
+				</span>
+			</h1>
+			<span class="text-lg text-gray-600">{{ scan.created_at }}</span>
 		</div>
+		<p class="mb-8 text-sm">
+			<span class="font-bold mr-1 text-gray-600">Auditeerimisele edastatud aadress:</span>
+			<span><a class="text-blue-700" :href="scan.original_url">{{ scan.original_url }}</a></span>
+		</p>
 		<div class="flex items-center justify-between pb-4">
 			<label for="table-search" class="sr-only">Otsing</label>
 			<div class="relative">
@@ -48,27 +61,30 @@
 			</tr>
 			</thead>
 			<tbody>
-			<tr class="bg-white border-b hover:bg-gray-50">
-				<th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap">
-					Le Googel
+			<tr
+				v-for="page in scan.pages"
+				class="bg-white border-b hover:bg-gray-50"
+			>
+				<th scope="row" class="px-6 py-4 font-medium text-gray-900">
+					{{ page.title }}
 				</th>
 				<td class="px-6 py-4">
-					https://www.google.com
+					{{ page.url }}
 				</td>
 				<td class="px-6 py-4">
-					0.88
+					{{ page.performance ?? '-' }}
 				</td>
 				<td class="px-6 py-4">
-					0.87
+					{{ page.accessibility ?? '-' }}
 				</td>
 				<td class="px-6 py-4">
-					0.86
+					{{ page.best_practices ?? '-' }}
 				</td>
 				<td class="px-6 py-4">
-					0.85
+					{{ page.seo ?? '-' }}
 				</td>
 				<td class="px-6 py-4">
-					0.84
+					{{ page.pwa ?? '-' }}
 				</td>
 				<td class="px-6 py-2">
 					<NuxtLink class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-3 focus:outline-none" to="/detail/1">Raport</NuxtLink>
@@ -80,4 +96,15 @@
 </template>
 
 <script setup lang="ts">
+const client = useSupabaseClient()
+const route = useRoute()
+
+const { data: scan } = await useAsyncData('data', async () => {
+	const { data } = await client
+		.from('scans')
+		.select('created_at, status, original_url, websites!inner(host), pages(title, url, performance, accessibility, best_practices, seo, pwa)')
+		.eq('id', route.params.id)
+		.single()
+	return data
+})
 </script>
